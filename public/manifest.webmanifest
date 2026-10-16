@@ -1,0 +1,18 @@
+{
+  "name": "JuDJanG — จัดการรายรับรายจ่าย",
+  "short_name": "JuDJanG",
+  "description": "บันทึกรายรับรายจ่ายแบบรวดเร็ว เรียบง่าย เห็นภาพชัด",
+  "lang": "th",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F8F9FA",
+  "theme_color": "#F8F9FA",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
