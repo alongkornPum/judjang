@@ -4,14 +4,16 @@ import { todayISO } from './format'
 const escape = (v) => `"${String(v).replaceAll('"', '""')}"`
 
 // UTF-8 BOM so Excel renders Thai correctly.
-export function exportCsv(items) {
+export function exportCsv(items, cards = []) {
+  const cardName = Object.fromEntries(cards.map((c) => [c.id, c.name]))
   const rows = [
-    ['วันที่', 'ประเภท', 'หมวดหมู่', 'จำนวนเงิน', 'บันทึก'],
+    ['วันที่', 'ประเภท', 'หมวดหมู่', 'จำนวนเงิน', 'ชำระด้วย', 'บันทึก'],
     ...items.map((t) => [
       t.date,
       t.type === 'income' ? 'รายรับ' : 'รายจ่าย',
       getCategory(t.category).label,
       t.amount.toFixed(2),
+      t.type === 'expense' ? (cardName[t.cardId] ?? 'เงินสด / โอน') : '',
       t.note ?? '',
     ]),
   ]

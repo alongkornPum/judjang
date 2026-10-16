@@ -1,6 +1,6 @@
 import {
   Utensils, Coffee, Car, ShoppingBag, Receipt, HeartPulse, Gamepad2, Ellipsis,
-  Briefcase, Laptop, Gift, TrendingUp,
+  Briefcase, Laptop, Gift, TrendingUp, Repeat,
 } from 'lucide-react'
 
 export const CATEGORIES = {
@@ -12,6 +12,7 @@ export const CATEGORIES = {
     { id: 'bills', label: 'ค่าบิล', icon: Receipt, color: '#8B5CF6' },
     { id: 'health', label: 'สุขภาพ', icon: HeartPulse, color: '#06B6D4' },
     { id: 'fun', label: 'บันเทิง', icon: Gamepad2, color: '#F97316' },
+    { id: 'subscription', label: 'บริการรายเดือน', icon: Repeat, color: '#6366F1' },
     { id: 'other-expense', label: 'อื่นๆ', icon: Ellipsis, color: '#94A3B8' },
   ],
   income: [

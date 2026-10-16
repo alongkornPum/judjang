@@ -18,7 +18,7 @@ function Action({ icon: Icon, title, description, onClick, danger }) {
   )
 }
 
-export default function SettingsView({ count, onExport, onLoadSample, onClear }) {
+export default function SettingsView({ count, subCount, cardCount, onExport, onLoadSample, onClear }) {
   return (
     <div className="mx-auto max-w-2xl space-y-5">
       <h1 className="text-2xl font-bold tracking-tight">ตั้งค่า</h1>
@@ -29,7 +29,7 @@ export default function SettingsView({ count, onExport, onLoadSample, onClear })
           <div>
             <p className="font-semibold">บัญชีของฉัน</p>
             <p className="flex items-center gap-1.5 text-sm text-muted">
-              <Database className="size-3.5" aria-hidden /> เก็บในเบราว์เซอร์นี้ · <span className="num">{count.toLocaleString('th-TH')}</span> รายการ
+              <Database className="size-3.5" aria-hidden /> เก็บในเบราว์เซอร์นี้ · <span className="num">{count.toLocaleString('th-TH')}</span> รายการ · บริการ <span className="num">{subCount}</span> · บัตร <span className="num">{cardCount}</span>
             </p>
           </div>
         </div>
@@ -37,8 +37,8 @@ export default function SettingsView({ count, onExport, onLoadSample, onClear })
 
       <section aria-label="จัดการข้อมูล" className="divide-y divide-line overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-line">
         <Action icon={FileSpreadsheet} title="ส่งออก Excel (.csv)" description="ดาวน์โหลดรายการทั้งหมด เปิดได้ด้วย Excel / Google Sheets" onClick={onExport} />
-        <Action icon={RotateCcw} title="โหลดข้อมูลตัวอย่าง" description="แทนที่ข้อมูลปัจจุบันด้วยข้อมูลตัวอย่าง 6 เดือน" onClick={onLoadSample} />
-        <Action icon={Trash2} title="ล้างข้อมูลทั้งหมด" description="ลบทุกรายการออกจากเครื่องนี้ ไม่สามารถกู้คืนได้" onClick={onClear} danger />
+        <Action icon={RotateCcw} title="โหลดข้อมูลตัวอย่าง" description="แทนที่ข้อมูลปัจจุบันด้วยข้อมูลตัวอย่าง 6 เดือน พร้อมบริการและบัตรตัวอย่าง" onClick={onLoadSample} />
+        <Action icon={Trash2} title="ล้างข้อมูลทั้งหมด" description="ลบรายการ บริการรายเดือน และบัตรทั้งหมดออกจากเครื่องนี้ กู้คืนไม่ได้" onClick={onClear} danger />
       </section>
     </div>
   )

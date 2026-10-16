@@ -1,4 +1,4 @@
-import { House, ChartPie, Plus } from 'lucide-react'
+import { House, ChartPie, Plus, Repeat, CreditCard } from 'lucide-react'
 
 function NavItem({ active, label, icon: Icon, onClick }) {
   return (
@@ -6,7 +6,7 @@ function NavItem({ active, label, icon: Icon, onClick }) {
       type="button"
       onClick={onClick}
       aria-current={active ? 'page' : undefined}
-      className={`flex h-14 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl text-xs font-medium transition-colors ${
+      className={`flex h-14 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl text-[11px] font-medium transition-colors ${
         active ? 'text-ink' : 'text-muted'
       }`}
     >
@@ -18,13 +18,15 @@ function NavItem({ active, label, icon: Icon, onClick }) {
 
 // Mobile only: the primary action sits in the thumb zone, centred and raised.
 export default function BottomNav({ view, onNavigate, onAdd }) {
+  const item = (id, label, icon) => <NavItem active={view === id} label={label} icon={icon} onClick={() => onNavigate(id)} />
   return (
     <nav
       aria-label="เมนูหลัก"
       className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-white/90 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
     >
-      <div className="mx-auto flex max-w-md items-center px-6">
-        <NavItem active={view === 'home'} label="หน้าแรก" icon={House} onClick={() => onNavigate('home')} />
+      <div className="mx-auto flex max-w-md items-center px-2">
+        {item('home', 'หน้าแรก', House)}
+        {item('report', 'สรุป', ChartPie)}
         <div className="flex flex-1 justify-center">
           <button
             type="button"
@@ -35,7 +37,8 @@ export default function BottomNav({ view, onNavigate, onAdd }) {
             <Plus className="size-7" strokeWidth={2.4} aria-hidden />
           </button>
         </div>
-        <NavItem active={view === 'report'} label="สรุป" icon={ChartPie} onClick={() => onNavigate('report')} />
+        {item('subscriptions', 'รายเดือน', Repeat)}
+        {item('cards', 'บัตร', CreditCard)}
       </div>
     </nav>
   )

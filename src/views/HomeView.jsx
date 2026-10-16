@@ -2,8 +2,9 @@ import PeriodTabs from '../components/PeriodTabs'
 import SummaryCards from '../components/SummaryCards'
 import TransactionList from '../components/TransactionList'
 import { CategoryDonut, TrendChart } from '../components/Charts'
+import UpcomingPayments from '../components/UpcomingPayments'
 
-export default function HomeView({ items, totals, period, onPeriod, categories, categoryFilter, onCategory, onDelete, onAdd, trend }) {
+export default function HomeView({ items, cards, upcoming, onOpen, totals, period, onPeriod, categories, categoryFilter, onCategory, onDelete, onAdd, trend }) {
   return (
     <div className="space-y-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -19,8 +20,10 @@ export default function HomeView({ items, totals, period, onPeriod, categories, 
           <TrendChart data={trend} />
           <CategoryDonut data={categories} selected={categoryFilter} onSelect={onCategory} />
         </div>
-        <div className="lg:col-span-2">
+        <div className="space-y-5 lg:col-span-2">
+          <UpcomingPayments items={upcoming} onOpen={onOpen} />
           <TransactionList
+            cards={cards}
             key={period}
             items={items}
             categoryFilter={categoryFilter}

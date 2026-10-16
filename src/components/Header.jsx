@@ -1,8 +1,10 @@
-import { House, ChartPie, Settings, Plus, Wallet } from 'lucide-react'
+import { House, ChartPie, Settings, Plus, Wallet, Repeat, CreditCard } from 'lucide-react'
 
 export const NAV = [
   { id: 'home', label: 'หน้าแรก', icon: House },
   { id: 'report', label: 'รายงานสรุป', icon: ChartPie },
+  { id: 'subscriptions', label: 'บริการรายเดือน', icon: Repeat },
+  { id: 'cards', label: 'บัตรเครดิต', icon: CreditCard },
   { id: 'settings', label: 'ตั้งค่า', icon: Settings },
 ]
 
@@ -22,7 +24,7 @@ export function Logo() {
 export default function Header({ view, onNavigate, onAdd }) {
   return (
     <header className="sticky top-0 z-30 border-b border-line bg-canvas/85 backdrop-blur pt-[env(safe-area-inset-top)]">
-      <div className="mx-auto flex h-16 max-w-7xl items-center gap-6 px-4 lg:px-6">
+      <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 lg:px-6 xl:gap-6">
         <button type="button" onClick={() => onNavigate('home')} className="rounded-xl" aria-label="JuDJanG หน้าแรก">
           <Logo />
         </button>
@@ -34,7 +36,7 @@ export default function Header({ view, onNavigate, onAdd }) {
               type="button"
               onClick={() => onNavigate(id)}
               aria-current={view === id ? 'page' : undefined}
-              className={`flex h-10 items-center gap-2 rounded-xl px-3.5 text-sm font-medium transition-colors ${
+              className={`flex h-10 items-center gap-2 whitespace-nowrap rounded-xl px-3 text-sm font-medium transition-colors xl:px-3.5 ${
                 view === id ? 'bg-white text-ink shadow-sm ring-1 ring-line' : 'text-muted hover:bg-white/70 hover:text-ink'
               }`}
             >

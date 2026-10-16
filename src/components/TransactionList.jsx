@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { ChevronDown, Plus, Search, Trash2, X, Inbox } from 'lucide-react'
+import { ChevronDown, CreditCard, Plus, Repeat, Search, Trash2, X, Inbox } from 'lucide-react'
 import { getCategory } from '../data/categories'
 import { formatDayHeading, formatMoney, formatSigned } from '../lib/format'
 import CategoryIcon from './CategoryIcon'
@@ -12,7 +12,8 @@ const TYPE_FILTERS = [
 
 const PAGE = 20
 
-export default function TransactionList({ items, categoryFilter, onClearCategory, onDelete, onAdd }) {
+export default function TransactionList({ items, cards = [], categoryFilter, onClearCategory, onDelete, onAdd }) {
+  const cardById = useMemo(() => Object.fromEntries(cards.map((c) => [c.id, c])), [cards])
   const [query, setQuery] = useState('')
   const [type, setType] = useState('all')
   const [limit, setLimit] = useState(PAGE)
@@ -108,7 +109,7 @@ export default function TransactionList({ items, categoryFilter, onClearCategory
               </h3>
               <ul>
                 {g.items.map((t) => (
-                  <TransactionRow key={t.id} tx={t} onDelete={onDelete} />
+                  <TransactionRow key={t.id} tx={t} card={cardById[t.cardId]} onDelete={onDelete} />
                 ))}
               </ul>
             </div>
@@ -131,7 +132,7 @@ export default function TransactionList({ items, categoryFilter, onClearCategory
 }
 
 // Progressive disclosure: tap a row to reveal date, note and delete.
-function TransactionRow({ tx, onDelete }) {
+function TransactionRow({ tx, card, onDelete }) {
   const [open, setOpen] = useState(false)
   const c = getCategory(tx.category)
   const income = tx.type === 'income'
@@ -148,6 +149,19 @@ function TransactionRow({ tx, onDelete }) {
         <span className="min-w-0 flex-1">
           <span className="block truncate font-medium">{c.label}</span>
           {tx.note && <span className="block truncate text-sm text-muted">{tx.note}</span>}
+          {(card || tx.subscriptionId) && (
+            <span className="mt-0.5 flex items-center gap-2 text-xs text-muted">
+              {tx.subscriptionId && (
+                <span className="flex items-center gap-1"><Repeat className="size-3" aria-hidden /> อัตโนมัติ</span>
+              )}
+              {card && (
+                <span className="flex items-center gap-1">
+                  <span className="h-2.5 w-3.5 rounded-[2px]" style={{ backgroundColor: card.color }} aria-hidden />
+                  {card.name}{card.last4 && ` ••${card.last4}`}
+                </span>
+              )}
+            </span>
+          )}
         </span>
         <span className={`num shrink-0 font-semibold ${income ? 'text-income-strong' : 'text-ink'}`}>{formatSigned(tx)}</span>
         <ChevronDown className={`size-4 shrink-0 text-muted transition-transform ${open ? 'rotate-180' : ''}`} aria-hidden />
@@ -163,6 +177,14 @@ function TransactionRow({ tx, onDelete }) {
               <dt>จำนวน:</dt>
               <dd className="num text-ink">฿{formatMoney(tx.amount)}</dd>
             </div>
+            {!income && (
+              <div className="flex gap-1.5">
+                <dt>ชำระด้วย:</dt>
+                <dd className="flex items-center gap-1 text-ink">
+                  {card ? <><CreditCard className="size-3.5" aria-hidden />{card.name}</> : 'เงินสด / โอน'}
+                </dd>
+              </div>
+            )}
           </dl>
           <button
             type="button"
