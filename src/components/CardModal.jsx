@@ -37,12 +37,12 @@ export default function CardModal({ initial, onClose, onSubmit, onDelete }) {
           <span className="num text-lg tracking-[0.2em]">•••• {last4 || '0000'}</span>
         </div>
 
-        <div className="grid grid-cols-[1fr_auto] gap-3">
+        <div className="grid grid-cols-[minmax(0,1fr)_7rem] gap-3">
           <Field label="ชื่อบัตร">
             <input ref={nameRef} value={name} onChange={(e) => { setName(e.target.value); setError('') }} maxLength={30} placeholder="เช่น บัตรหลัก" className={inputClass} />
           </Field>
           <Field label="เลข 4 ตัวท้าย">
-            <input inputMode="numeric" value={last4} onChange={(e) => setLast4(e.target.value.replace(/\D/g, '').slice(0, 4))} placeholder="1234" className={`num w-24 ${inputClass}`} />
+            <input inputMode="numeric" value={last4} onChange={(e) => setLast4(e.target.value.replace(/\D/g, '').slice(0, 4))} placeholder="1234" className={`num ${inputClass}`} />
           </Field>
         </div>
 
@@ -74,6 +74,7 @@ export default function CardModal({ initial, onClose, onSubmit, onDelete }) {
             <label className={`relative h-11 w-11 shrink-0 cursor-pointer overflow-hidden rounded-xl ring-offset-2 ${CARD_COLORS.includes(color) ? 'ring-1 ring-line' : 'ring-2 ring-ink'}`} style={{ backgroundColor: color }} title="เลือกสีเอง">
               <input type="color" value={color.toLowerCase()} onChange={(e) => pickColor(e.target.value)} aria-label="เลือกสีเอง" className="absolute inset-0 h-full w-full cursor-pointer opacity-0" />
             </label>
+            <div className="w-32 shrink-0">
             <input
               value={hexInput}
               onChange={(e) => {
@@ -87,9 +88,10 @@ export default function CardModal({ initial, onClose, onSubmit, onDelete }) {
               placeholder="#2D3748"
               aria-label="รหัสสี"
               aria-invalid={!normalizeHex(hexInput)}
-              className={`num w-32 uppercase ${inputClass}`}
+              className={`num mt-0! uppercase ${inputClass}`}
             />
-            <span className="text-xs text-muted">กดวงสีหรือพิมพ์ #รหัสสี</span>
+            </div>
+            <span className="min-w-0 text-xs text-muted">กดวงสีหรือพิมพ์ #รหัสสี</span>
           </div>
         </fieldset>
 
