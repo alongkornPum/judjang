@@ -6,7 +6,20 @@ import { clampDate, startOfToday } from './dates'
  * next form a statement, due on the first `dueDay` after that closing date.
  */
 
-export const CARD_COLORS = ['#2D3748', '#1E3A8A', '#065F46', '#7C2D12', '#581C87', '#9F1239']
+export const CARD_COLORS = [
+  '#2D3748', '#111827', '#475569', '#1E3A8A', '#1D4ED8', '#0E7490',
+  '#0F766E', '#065F46', '#15803D', '#A16207', '#B45309', '#C2410C',
+  '#7C2D12', '#B91C1C', '#9F1239', '#BE185D', '#86198F', '#581C87',
+  '#6D28D9', '#4338CA',
+]
+
+// Normalizes "#abc" / "abc" / "#aabbcc" to "#AABBCC"; returns null when invalid.
+export function normalizeHex(value) {
+  const hex = value.trim().replace(/^#/, '')
+  if (/^[0-9a-f]{3}$/i.test(hex)) return `#${[...hex].map((c) => c + c).join('')}`.toUpperCase()
+  if (/^[0-9a-f]{6}$/i.test(hex)) return `#${hex}`.toUpperCase()
+  return null
+}
 
 export function cardCycle(card, today = startOfToday()) {
   let next = clampDate(today.getFullYear(), today.getMonth(), card.closingDay)

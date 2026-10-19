@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { CARD_COLORS } from '../lib/cards'
+import { CARD_COLORS, normalizeHex } from '../lib/cards'
 import Modal, { Field, inputClass } from './Modal'
 
 const DAYS = Array.from({ length: 31 }, (_, i) => i + 1)
@@ -12,7 +12,13 @@ export default function CardModal({ initial, onClose, onSubmit, onDelete }) {
   const [dueDay, setDueDay] = useState(initial?.dueDay ?? 10)
   const [limit, setLimit] = useState(initial?.limit ? String(initial.limit) : '')
   const [color, setColor] = useState(initial?.color ?? CARD_COLORS[0])
+  const [hexInput, setHexInput] = useState(initial?.color ?? CARD_COLORS[0])
   const [error, setError] = useState('')
+  const pickColor = (c) => {
+    const hex = normalizeHex(c)
+    setColor(hex)
+    setHexInput(hex)
+  }
   const nameRef = useRef(null)
 
   const submit = (e) => {
@@ -59,10 +65,31 @@ export default function CardModal({ initial, onClose, onSubmit, onDelete }) {
 
         <fieldset>
           <legend className="text-sm font-medium text-muted">สีบัตร</legend>
-          <div className="mt-2 flex flex-wrap gap-2">
+          <div className="mt-2 grid grid-cols-10 gap-2">
             {CARD_COLORS.map((c) => (
-              <button key={c} type="button" onClick={() => setColor(c)} aria-label={`สี ${c}`} aria-pressed={color === c} className={`h-9 w-12 rounded-lg ring-offset-2 transition ${color === c ? 'ring-2 ring-ink' : ''}`} style={{ backgroundColor: c }} />
+              <button key={c} type="button" onClick={() => pickColor(c)} aria-label={`สี ${c}`} aria-pressed={color === c} className={`aspect-square w-full rounded-lg ring-offset-2 transition ${color === c ? 'ring-2 ring-ink' : ''}`} style={{ backgroundColor: c }} />
             ))}
+          </div>
+          <div className="mt-3 flex items-center gap-2">
+            <label className={`relative h-11 w-11 shrink-0 cursor-pointer overflow-hidden rounded-xl ring-offset-2 ${CARD_COLORS.includes(color) ? 'ring-1 ring-line' : 'ring-2 ring-ink'}`} style={{ backgroundColor: color }} title="เลือกสีเอง">
+              <input type="color" value={color.toLowerCase()} onChange={(e) => pickColor(e.target.value)} aria-label="เลือกสีเอง" className="absolute inset-0 h-full w-full cursor-pointer opacity-0" />
+            </label>
+            <input
+              value={hexInput}
+              onChange={(e) => {
+                setHexInput(e.target.value)
+                const hex = normalizeHex(e.target.value)
+                if (hex) setColor(hex)
+              }}
+              onBlur={() => setHexInput(color)}
+              maxLength={7}
+              spellCheck={false}
+              placeholder="#2D3748"
+              aria-label="รหัสสี"
+              aria-invalid={!normalizeHex(hexInput)}
+              className={`num w-32 uppercase ${inputClass}`}
+            />
+            <span className="text-xs text-muted">กดวงสีหรือพิมพ์ #รหัสสี</span>
           </div>
         </fieldset>
 
