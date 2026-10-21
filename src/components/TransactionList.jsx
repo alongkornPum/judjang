@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { ChevronDown, CreditCard, Plus, Repeat, Search, Trash2, X, Inbox } from 'lucide-react'
+import { ChevronDown, CreditCard, Plus, Repeat, Search, SquareStack, Trash2, X, Inbox } from 'lucide-react'
 import { getCategory } from '../data/categories'
 import { formatDayHeading, formatMoney, formatSigned } from '../lib/format'
 import CategoryIcon from './CategoryIcon'
@@ -149,10 +149,13 @@ function TransactionRow({ tx, card, onDelete }) {
         <span className="min-w-0 flex-1">
           <span className="block truncate font-medium">{c.label}</span>
           {tx.note && <span className="block truncate text-sm text-muted">{tx.note}</span>}
-          {(card || tx.subscriptionId) && (
+          {(card || tx.subscriptionId || tx.installmentNo) && (
             <span className="mt-0.5 flex items-center gap-2 text-xs text-muted">
               {tx.subscriptionId && (
                 <span className="flex items-center gap-1"><Repeat className="size-3" aria-hidden /> อัตโนมัติ</span>
+              )}
+              {tx.installmentNo && (
+                <span className="num flex items-center gap-1 font-medium text-ink"><SquareStack className="size-3" aria-hidden /> งวด {tx.installmentNo}/{tx.installmentCount}</span>
               )}
               {card && (
                 <span className="flex items-center gap-1">
@@ -177,6 +180,12 @@ function TransactionRow({ tx, card, onDelete }) {
               <dt>จำนวน:</dt>
               <dd className="num text-ink">฿{formatMoney(tx.amount)}</dd>
             </div>
+            {tx.installmentNo && (
+              <div className="flex gap-1.5">
+                <dt>ผ่อนชำระ:</dt>
+                <dd className="num text-ink">งวดที่ {tx.installmentNo} จาก {tx.installmentCount}</dd>
+              </div>
+            )}
             {!income && (
               <div className="flex gap-1.5">
                 <dt>ชำระด้วย:</dt>

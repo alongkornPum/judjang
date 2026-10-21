@@ -26,6 +26,9 @@ export function relativeDays(iso, today) {
 export const formatShortDate = (iso) =>
   parseISODate(iso).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })
 
+export const formatDateWithYear = (iso) =>
+  parseISODate(iso).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })
+
 export const addDaysISO = (iso, n) => {
   const d = parseISODate(iso)
   return toISODate(new Date(d.getFullYear(), d.getMonth(), d.getDate() + n))

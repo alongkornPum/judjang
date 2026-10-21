@@ -7,9 +7,10 @@ const KEYS = {
   transactions: 'judjang:transactions:v1',
   subscriptions: 'judjang:subscriptions:v1',
   cards: 'judjang:cards:v1',
+  installments: 'judjang:installments:v1',
 }
 
-// Only a brand-new install gets sample subscriptions/cards; existing users
+// Only a brand-new install gets sample subscriptions/cards/installments; existing users
 // who already have transactions start with empty lists.
 const isFreshInstall = (() => {
   try {
@@ -48,20 +49,27 @@ const newId = () => `${Date.now().toString(36)}-${Math.random().toString(36).sli
 const upsert = (list, item) =>
   item.id && list.some((x) => x.id === item.id) ? list.map((x) => (x.id === item.id ? { ...x, ...item } : x)) : [...list, { ...item, id: newId() }]
 
+const advanceCharged = (lastById) => (list) =>
+  list.map((x) => (lastById[x.id] && (!x.lastChargedDate || lastById[x.id] > x.lastChargedDate) ? { ...x, lastChargedDate: lastById[x.id] } : x))
+
+// One auto-recorded expense per subscription date / installment number.
+const chargeKey = (t) => (t.subscriptionId ? `${t.subscriptionId}|${t.date}` : `${t.installmentId}|${t.installmentNo}`)
+
 export function useStore() {
   const [transactions, setTransactions] = usePersistentState(KEYS.transactions, () => getSample().transactions)
   const [subscriptions, setSubscriptions] = usePersistentState(KEYS.subscriptions, () => (isFreshInstall ? getSample().subscriptions : []))
   const [cards, setCards] = usePersistentState(KEYS.cards, () => (isFreshInstall ? getSample().cards : []))
+  const [installments, setInstallments] = usePersistentState(KEYS.installments, () => (isFreshInstall ? getSample().installments : []))
 
   const addTransaction = useCallback((tx) => {
     setTransactions((prev) => [{ ...tx, id: newId(), createdAt: Date.now() }, ...prev].sort(byNewest))
   }, [setTransactions])
 
-  // Idempotent per (subscription, date) so a re-run of the sync never double-charges.
-  const addSubscriptionCharges = useCallback((charges) => {
+  // Idempotent per chargeKey so a re-run of the sync never double-charges.
+  const addAutoCharges = useCallback((charges) => {
     setTransactions((prev) => {
-      const seen = new Set(prev.filter((t) => t.subscriptionId).map((t) => `${t.subscriptionId}|${t.date}`))
-      const fresh = charges.filter((c) => !seen.has(`${c.subscriptionId}|${c.date}`))
+      const seen = new Set(prev.filter((t) => t.subscriptionId || t.installmentId).map(chargeKey))
+      const fresh = charges.filter((c) => !seen.has(chargeKey(c)))
       if (!fresh.length) return prev
       const now = Date.now()
       return [...fresh.map((c, i) => ({ ...c, id: newId(), createdAt: now + i })), ...prev].sort(byNewest)
@@ -73,9 +81,7 @@ export function useStore() {
 
   const saveSubscription = useCallback((sub) => setSubscriptions((prev) => upsert(prev, sub)), [setSubscriptions])
   const removeSubscription = useCallback((id) => setSubscriptions((prev) => prev.filter((s) => s.id !== id)), [setSubscriptions])
-  const markCharged = useCallback((lastById) => {
-    setSubscriptions((prev) => prev.map((s) => (lastById[s.id] && (!s.lastChargedDate || lastById[s.id] > s.lastChargedDate) ? { ...s, lastChargedDate: lastById[s.id] } : s)))
-  }, [setSubscriptions])
+  const markCharged = useCallback((lastById) => setSubscriptions(advanceCharged(lastById)), [setSubscriptions])
   const toggleSubscription = useCallback((id) => {
     setSubscriptions((prev) =>
       prev.map((s) => {
@@ -91,7 +97,8 @@ export function useStore() {
   const removeCard = useCallback((id) => {
     setCards((prev) => prev.filter((c) => c.id !== id))
     setSubscriptions((prev) => prev.map((s) => (s.cardId === id ? { ...s, cardId: null } : s)))
-  }, [setCards, setSubscriptions])
+    setInstallments((prev) => prev.map((p) => (p.cardId === id ? { ...p, cardId: null } : p)))
+  }, [setCards, setSubscriptions, setInstallments])
   const setStatementPaid = useCallback((cardId, closeDate, paid) => {
     setCards((prev) =>
       prev.map((c) => {
@@ -102,22 +109,29 @@ export function useStore() {
     )
   }, [setCards])
 
+  const saveInstallment = useCallback((plan) => setInstallments((prev) => upsert(prev, plan)), [setInstallments])
+  const removeInstallment = useCallback((id) => setInstallments((prev) => prev.filter((p) => p.id !== id)), [setInstallments])
+  const markInstallmentsCharged = useCallback((lastById) => setInstallments(advanceCharged(lastById)), [setInstallments])
+
   const clearAll = useCallback(() => {
     setTransactions([])
     setSubscriptions([])
     setCards([])
-  }, [setTransactions, setSubscriptions, setCards])
+    setInstallments([])
+  }, [setTransactions, setSubscriptions, setCards, setInstallments])
   const loadSample = useCallback(() => {
     const s = createSampleData()
     setTransactions(s.transactions)
     setSubscriptions(s.subscriptions)
     setCards(s.cards)
-  }, [setTransactions, setSubscriptions, setCards])
+    setInstallments(s.installments)
+  }, [setTransactions, setSubscriptions, setCards, setInstallments])
 
   return {
-    transactions, subscriptions, cards,
-    addTransaction, addSubscriptionCharges, removeTransaction, restoreTransaction,
+    transactions, subscriptions, cards, installments,
+    addTransaction, addAutoCharges, removeTransaction, restoreTransaction,
     saveSubscription, removeSubscription, toggleSubscription, markCharged,
+    saveInstallment, removeInstallment, markInstallmentsCharged,
     saveCard, removeCard, setStatementPaid,
     clearAll, loadSample,
   }

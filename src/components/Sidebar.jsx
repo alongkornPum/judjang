@@ -16,7 +16,7 @@ function Block({ icon: Icon, title, children }) {
 }
 
 // Desktop left bar: quick stats, category filter, export.
-export default function Sidebar({ items, totals, period, categoryFilter, onCategory, onExport, subsPerMonth, cardOutstanding }) {
+export default function Sidebar({ items, totals, period, categoryFilter, onCategory, onExport, subsPerMonth, instPerMonth, cardOutstanding }) {
   const cats = byCategory(items)
   const totalsById = Object.fromEntries(cats.map((c) => [c.id, c.value]))
   const top = cats[0]
@@ -29,6 +29,7 @@ export default function Sidebar({ items, totals, period, categoryFilter, onCateg
           <Row label="จำนวนรายการ" value={items.length.toLocaleString('th-TH')} />
           <Row label="จ่ายมากสุด" value={top ? `${top.label} ${Math.round(top.share * 100)}%` : '—'} />
           <Row label="บริการรายเดือน" value={`฿${formatMoney(subsPerMonth)}/ด.`} />
+          <Row label="ผ่อนชำระ" value={`฿${formatMoney(instPerMonth)}/ด.`} />
           <Row label="ยอดค้างบัตร" value={`฿${formatMoney(cardOutstanding)}`} />
         </dl>
       </Block>

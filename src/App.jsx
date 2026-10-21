@@ -5,17 +5,21 @@ import Sidebar from './components/Sidebar'
 import AddTransactionModal from './components/AddTransactionModal'
 import SubscriptionModal from './components/SubscriptionModal'
 import CardModal from './components/CardModal'
+import InstallmentModal from './components/InstallmentModal'
+import { Segmented } from './components/Modal'
 import Toast from './components/Toast'
 import { upcomingPayments } from './components/UpcomingPayments'
 import HomeView from './views/HomeView'
 import ReportView from './views/ReportView'
 import SubscriptionsView from './views/SubscriptionsView'
+import InstallmentsView from './views/InstallmentsView'
 import CardsView from './views/CardsView'
 import SettingsView from './views/SettingsView'
 import { useStore } from './hooks/useStore'
 import { byCategory, inPeriod, monthlyTrend, sumTotals } from './lib/stats'
 import { monthlyCost, pendingCharges } from './lib/subscriptions'
 import { cardStatus } from './lib/cards'
+import { installmentProgress, pendingInstallments } from './lib/installments'
 import { exportCsv } from './lib/exportCsv'
 import { todayISO } from './lib/format'
 
@@ -38,16 +42,17 @@ function useToday() {
 
 export default function App() {
   const store = useStore()
-  const { transactions, subscriptions, cards } = store
+  const { transactions, subscriptions, cards, installments } = store
   const today = useToday()
   const [view, setView] = useState('home')
   const [period, setPeriod] = useState('month')
   const [categoryFilter, setCategoryFilter] = useState(null)
-  const [modal, setModal] = useState(null) // { kind: 'tx' | 'sub' | 'card', data? }
+  const [recurringTab, setRecurringTab] = useState('subs') // 'subs' | 'installments'
+  const [modal, setModal] = useState(null) // { kind: 'tx' | 'sub' | 'card' | 'inst', data? }
   const [toast, setToast] = useState(null)
 
   // Record subscription charges that came due (including any missed while the app was closed).
-  const { addSubscriptionCharges, markCharged } = store
+  const { addAutoCharges, markCharged, markInstallmentsCharged } = store
   useEffect(() => {
     const charges = []
     const lastById = {}
@@ -60,16 +65,34 @@ export default function App() {
       }
     }
     if (!charges.length) return
-    addSubscriptionCharges(charges)
+    addAutoCharges(charges)
     markCharged(lastById)
-  }, [subscriptions, today, addSubscriptionCharges, markCharged])
+  }, [subscriptions, today, addAutoCharges, markCharged])
+
+  // Same for installments; each charge carries its number so lists can show "งวด 3/10".
+  useEffect(() => {
+    const charges = []
+    const lastById = {}
+    for (const p of installments) {
+      const due = pendingInstallments(p, today)
+      if (!due.length) continue
+      lastById[p.id] = due.at(-1).date
+      for (const i of due) {
+        charges.push({ type: 'expense', category: p.category, amount: i.amount, date: i.date, note: p.name, installmentId: p.id, installmentNo: i.no, installmentCount: p.count, cardId: p.cardId ?? null })
+      }
+    }
+    if (!charges.length) return
+    addAutoCharges(charges)
+    markInstallmentsCharged(lastById)
+  }, [installments, today, addAutoCharges, markInstallmentsCharged])
 
   const periodItems = useMemo(() => transactions.filter((t) => inPeriod(t.date, period)), [transactions, period, today]) // eslint-disable-line react-hooks/exhaustive-deps
   const totals = useMemo(() => sumTotals(periodItems), [periodItems])
   const categories = useMemo(() => byCategory(periodItems), [periodItems])
   const trend = useMemo(() => monthlyTrend(transactions), [transactions])
-  const upcoming = useMemo(() => upcomingPayments(subscriptions, cards, transactions), [subscriptions, cards, transactions, today]) // eslint-disable-line react-hooks/exhaustive-deps
+  const upcoming = useMemo(() => upcomingPayments(subscriptions, cards, transactions, installments), [subscriptions, cards, transactions, installments, today]) // eslint-disable-line react-hooks/exhaustive-deps
   const subsPerMonth = useMemo(() => subscriptions.filter((s) => s.active).reduce((a, s) => a + monthlyCost(s), 0), [subscriptions])
+  const instPerMonth = useMemo(() => installments.reduce((a, p) => a + (installmentProgress(p).next?.amount ?? 0), 0), [installments])
   const cardOutstanding = useMemo(() => cards.reduce((a, c) => a + cardStatus(c, transactions).outstanding, 0), [cards, transactions])
 
   const notify = (message, action) => setToast({ id: Date.now(), message, action })
@@ -80,6 +103,11 @@ export default function App() {
   const navigate = (v) => {
     setView(v)
     window.scrollTo({ top: 0 })
+  }
+
+  const openRecurring = (tab) => {
+    setRecurringTab(tab)
+    navigate('subscriptions')
   }
 
   // Desktop shortcut: N opens quick add.
@@ -117,6 +145,19 @@ export default function App() {
     notify('ลบบริการแล้ว')
   }
 
+  const handleSaveInstallment = (plan) => {
+    store.saveInstallment(plan)
+    closeModal()
+    notify(plan.id ? 'บันทึกการแก้ไขแล้ว' : `เพิ่มรายการผ่อน ${plan.name} แล้ว`)
+  }
+
+  const handleDeleteInstallment = (plan) => {
+    if (!window.confirm(`ลบ ${plan.name}? ค่างวดที่บันทึกไปแล้วจะยังอยู่`)) return
+    store.removeInstallment(plan.id)
+    closeModal()
+    notify('ลบรายการผ่อนแล้ว')
+  }
+
   const handleSaveCard = (card) => {
     store.saveCard(card)
     closeModal()
@@ -147,6 +188,7 @@ export default function App() {
             onCategory={setCategoryFilter}
             onExport={() => exportCsv(transactions, cards)}
             subsPerMonth={subsPerMonth}
+            instPerMonth={instPerMonth}
             cardOutstanding={cardOutstanding}
           />
         )}
@@ -156,7 +198,7 @@ export default function App() {
               items={periodItems}
               cards={cards}
               upcoming={upcoming}
-              onOpen={(kind) => navigate(kind === 'card' ? 'cards' : 'subscriptions')}
+              onOpen={(kind) => (kind === 'card' ? navigate('cards') : openRecurring(kind === 'inst' ? 'installments' : 'subs'))}
               totals={totals}
               period={period}
               onPeriod={setPeriod}
@@ -170,13 +212,30 @@ export default function App() {
           )}
           {view === 'report' && <ReportView items={periodItems} totals={totals} period={period} onPeriod={setPeriod} trend={trend} />}
           {view === 'subscriptions' && (
-            <SubscriptionsView
-              subscriptions={subscriptions}
-              cards={cards}
-              onAdd={() => setModal({ kind: 'sub' })}
-              onEdit={(s) => setModal({ kind: 'sub', data: s })}
-              onToggle={store.toggleSubscription}
-            />
+            <div className="mx-auto max-w-3xl space-y-5">
+              <Segmented
+                label="ประเภทรายจ่ายประจำ"
+                value={recurringTab}
+                onChange={setRecurringTab}
+                options={[{ id: 'subs', label: 'บริการรายเดือน' }, { id: 'installments', label: 'ผ่อนชำระ' }]}
+              />
+              {recurringTab === 'subs' ? (
+                <SubscriptionsView
+                  subscriptions={subscriptions}
+                  cards={cards}
+                  onAdd={() => setModal({ kind: 'sub' })}
+                  onEdit={(s) => setModal({ kind: 'sub', data: s })}
+                  onToggle={store.toggleSubscription}
+                />
+              ) : (
+                <InstallmentsView
+                  installments={installments}
+                  cards={cards}
+                  onAdd={() => setModal({ kind: 'inst' })}
+                  onEdit={(p) => setModal({ kind: 'inst', data: p })}
+                />
+              )}
+            </div>
           )}
           {view === 'cards' && (
             <CardsView
@@ -196,6 +255,7 @@ export default function App() {
               count={transactions.length}
               subCount={subscriptions.length}
               cardCount={cards.length}
+              instCount={installments.length}
               onExport={() => exportCsv(transactions, cards)}
               onLoadSample={() => {
                 if (window.confirm('แทนที่ข้อมูลปัจจุบันด้วยข้อมูลตัวอย่าง?')) {
@@ -215,7 +275,12 @@ export default function App() {
       </div>
 
       <BottomNav view={view} onNavigate={navigate} onAdd={openAdd} />
-      {modal?.kind === 'tx' && <AddTransactionModal cards={cards} onClose={closeModal} onSubmit={handleAdd} />}
+      {modal?.kind === 'tx' && (
+        <AddTransactionModal cards={cards} onClose={closeModal} onSubmit={handleAdd} onInstallment={(data) => setModal({ kind: 'inst', data })} />
+      )}
+      {modal?.kind === 'inst' && (
+        <InstallmentModal initial={modal.data} cards={cards} onClose={closeModal} onSubmit={handleSaveInstallment} onDelete={() => handleDeleteInstallment(modal.data)} />
+      )}
       {modal?.kind === 'sub' && (
         <SubscriptionModal initial={modal.data} cards={cards} onClose={closeModal} onSubmit={handleSaveSub} onDelete={() => handleDeleteSub(modal.data)} />
       )}

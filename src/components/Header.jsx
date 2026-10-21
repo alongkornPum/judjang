@@ -3,7 +3,7 @@ import { House, ChartPie, Settings, Plus, Wallet, Repeat, CreditCard } from 'luc
 export const NAV = [
   { id: 'home', label: 'หน้าแรก', icon: House },
   { id: 'report', label: 'รายงานสรุป', icon: ChartPie },
-  { id: 'subscriptions', label: 'บริการรายเดือน', icon: Repeat },
+  { id: 'subscriptions', label: 'รายเดือน & ผ่อน', icon: Repeat },
   { id: 'cards', label: 'บัตรเครดิต', icon: CreditCard },
   { id: 'settings', label: 'ตั้งค่า', icon: Settings },
 ]

@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { ChevronRight, SquareStack } from 'lucide-react'
 import { CATEGORIES } from '../data/categories'
 import { todayISO } from '../lib/format'
 import Modal, { Field, PaymentPicker, Segmented, inputClass } from './Modal'
@@ -7,7 +8,7 @@ import Modal, { Field, PaymentPicker, Segmented, inputClass } from './Modal'
  * Built for the 3-second entry goal: amount is autofocused with a numeric
  * keypad, a category is preselected, and Enter saves.
  */
-export default function AddTransactionModal({ initialType = 'expense', cards, onClose, onSubmit }) {
+export default function AddTransactionModal({ initialType = 'expense', cards, onClose, onSubmit, onInstallment }) {
   const [type, setType] = useState(initialType)
   const [amount, setAmount] = useState('')
   const [category, setCategory] = useState(CATEGORIES[initialType][0].id)
@@ -41,6 +42,13 @@ export default function AddTransactionModal({ initialType = 'expense', cards, on
   }
 
   const income = type === 'income'
+
+  // Hand what was typed so far over to the installment form (the preselected category isn't a real choice).
+  const switchToInstallment = () => {
+    const value = Number.parseFloat(amount.replaceAll(',', ''))
+    const picked = category !== CATEGORIES.expense[0].id && category !== 'subscription'
+    onInstallment({ name: note.trim(), total: value > 0 ? Math.round(value * 100) / 100 : undefined, category: picked ? category : undefined, cardId })
+  }
 
   return (
     <Modal title="บันทึกรายการ" onClose={onClose} initialFocusRef={amountRef}>
@@ -105,6 +113,21 @@ export default function AddTransactionModal({ initialType = 'expense', cards, on
         </fieldset>
 
         {!income && <PaymentPicker cards={cards} value={cardId} onChange={setCardId} />}
+
+        {!income && (
+          <button
+            type="button"
+            onClick={switchToInstallment}
+            className="flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left text-sm ring-1 ring-line transition hover:bg-canvas"
+          >
+            <SquareStack className="size-4.5 shrink-0 text-muted" aria-hidden />
+            <span className="min-w-0 flex-1">
+              <span className="block font-medium">ผ่อนชำระเป็นงวด</span>
+              <span className="block text-xs text-muted">แบ่งจ่ายรายเดือน แอปบันทึกค่างวดและนับงวดให้</span>
+            </span>
+            <ChevronRight className="size-4 shrink-0 text-muted" aria-hidden />
+          </button>
+        )}
 
         <div className="grid grid-cols-[auto_1fr] gap-3">
           <Field label="วันที่">

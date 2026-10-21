@@ -51,5 +51,10 @@ export function createSampleData(now = new Date()) {
     { id: 'sub-domain', name: 'โดเมนเว็บไซต์', amount: 450, cycle: 'yearly', anchorDate: toISODate(new Date(y, m, now.getDate() + 9)), cardId: 'card-main', color: '#9333EA', active: true, lastChargedDate: null },
   ]
 
-  return { transactions: transactions.sort(byNewest), subscriptions, cards }
+  // Installments already due are back-filled by the sync too.
+  const installments = [
+    { id: 'inst-phone', name: 'มือถือใหม่', total: 32900, count: 10, startDate: monthsAgo(2, 15), category: 'shopping', cardId: 'card-shop', lastChargedDate: null },
+  ]
+
+  return { transactions: transactions.sort(byNewest), subscriptions, cards, installments }
 }

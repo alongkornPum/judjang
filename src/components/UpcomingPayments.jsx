@@ -2,11 +2,13 @@ import { CalendarClock, CreditCard } from 'lucide-react'
 import { formatMoney, todayISO } from '../lib/format'
 import { daysUntil, formatShortDate, relativeDays } from '../lib/dates'
 import { nextBilling } from '../lib/subscriptions'
+import { installmentProgress } from '../lib/installments'
+import { getCategory } from '../data/categories'
 import { cardStatus } from '../lib/cards'
 
 const WINDOW_DAYS = 14
 
-export function upcomingPayments(subscriptions, cards, transactions) {
+export function upcomingPayments(subscriptions, cards, transactions, installments = []) {
   const today = todayISO()
   const cardName = Object.fromEntries(cards.map((c) => [c.id, c.name]))
   const out = []
@@ -14,6 +16,12 @@ export function upcomingPayments(subscriptions, cards, transactions) {
     if (!s.active) continue
     const date = nextBilling(s, today)
     if (date && daysUntil(date) <= WINDOW_DAYS) out.push({ key: s.id, kind: 'sub', date, title: s.name, amount: s.amount, color: s.color, meta: s.cardId ? cardName[s.cardId] : 'เงินสด / โอน' })
+  }
+  for (const p of installments) {
+    const { next } = installmentProgress(p)
+    if (next && daysUntil(next.date) <= WINDOW_DAYS) {
+      out.push({ key: p.id, kind: 'inst', date: next.date, title: p.name, amount: next.amount, color: getCategory(p.category).color, meta: `งวด ${next.no}/${p.count} · ${p.cardId ? cardName[p.cardId] : 'เงินสด / โอน'}` })
+    }
   }
   for (const c of cards) {
     const { upcoming } = cardStatus(c, transactions)

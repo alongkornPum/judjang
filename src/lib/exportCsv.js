@@ -14,7 +14,7 @@ export function exportCsv(items, cards = []) {
       getCategory(t.category).label,
       t.amount.toFixed(2),
       t.type === 'expense' ? (cardName[t.cardId] ?? 'เงินสด / โอน') : '',
-      t.note ?? '',
+      [t.note, t.installmentNo && `งวด ${t.installmentNo}/${t.installmentCount}`].filter(Boolean).join(' '),
     ]),
   ]
   const csv = '﻿' + rows.map((r) => r.map(escape).join(',')).join('\r\n')
