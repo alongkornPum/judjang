@@ -15,7 +15,7 @@ export function Logo() {
         <Wallet className="size-5" aria-hidden />
       </span>
       <span className="text-lg font-bold tracking-tight">
-        JuD<span className="text-income-strong">J</span>anG
+        จัดแจง<span className="text-income-strong">'ง</span>
       </span>
     </span>
   )
@@ -25,7 +25,7 @@ export default function Header({ view, onNavigate, onAdd }) {
   return (
     <header className="sticky top-0 z-30 border-b border-line bg-canvas/85 backdrop-blur pt-[env(safe-area-inset-top)]">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 lg:px-6 xl:gap-6">
-        <button type="button" onClick={() => onNavigate('home')} className="rounded-xl" aria-label="JuDJanG หน้าแรก">
+        <button type="button" onClick={() => onNavigate('home')} className="rounded-xl" aria-label="จัดแจง'ง หน้าแรก">
           <Logo />
         </button>
 
