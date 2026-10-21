@@ -11,12 +11,9 @@ export default function SubscriptionsView({ subscriptions, cards, onAdd, onEdit,
   const sorted = [...subscriptions].sort((a, b) => Number(b.active) - Number(a.active) || (nextBilling(a, today) ?? '').localeCompare(nextBilling(b, today) ?? ''))
 
   return (
-    <div className="mx-auto max-w-3xl space-y-5">
+    <div className="space-y-4">
       <div className="flex items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">บริการรายเดือน</h1>
-          <p className="text-sm text-muted">ใช้งานอยู่ {active.length} จาก {subscriptions.length} รายการ</p>
-        </div>
+        <p className="text-sm text-muted">ใช้งานอยู่ {active.length} จาก {subscriptions.length} รายการ</p>
         <button type="button" onClick={onAdd} className="flex h-11 items-center gap-2 rounded-xl bg-ink px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-ink/90 active:scale-[0.98]">
           <Plus className="size-4" aria-hidden /> เพิ่มบริการ
         </button>
@@ -41,9 +38,9 @@ export default function SubscriptionsView({ subscriptions, cards, onAdd, onEdit,
                   {s.name.charAt(0).toUpperCase()}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium">{s.name}</p>
-                  <p className="truncate text-sm text-muted">
-                    {next ? `ตัดเงิน ${formatShortDate(next)} · ${relativeDays(next)}` : 'หยุดชั่วคราว'}
+                  <p className="font-medium leading-snug wrap-anywhere">{s.name}</p>
+                  <p className="text-sm text-muted">
+                    {next ? `${formatShortDate(next)} · ${relativeDays(next)}` : 'หยุดชั่วคราว'}
                   </p>
                   <p className="mt-0.5 flex items-center gap-1 truncate text-xs text-muted">
                     {card ? (
@@ -73,7 +70,7 @@ function Stat({ label, value, strong }) {
   return (
     <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-line">
       <p className="text-xs font-medium text-muted">{label}</p>
-      <p className={`num mt-1 font-bold ${strong ? 'text-xl text-expense-strong' : 'text-lg'}`}>{value}</p>
+      <p className={`num mt-1 font-bold ${strong ? 'text-xl' : 'text-lg text-muted'}`}>{value}</p>
     </div>
   )
 }

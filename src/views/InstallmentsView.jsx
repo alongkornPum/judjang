@@ -14,14 +14,11 @@ export default function InstallmentsView({ installments, cards, onAdd, onEdit })
   const remaining = active.reduce((sum, r) => sum + r.remaining, 0)
 
   return (
-    <div className="mx-auto max-w-3xl space-y-5">
+    <div className="space-y-4">
       <div className="flex items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">ผ่อนชำระ</h1>
-          <p className="text-sm text-muted">กำลังผ่อน {active.length} จาก {installments.length} รายการ</p>
-        </div>
+        <p className="text-sm text-muted">กำลังผ่อน {active.length} จาก {installments.length} รายการ</p>
         <button type="button" onClick={onAdd} className="flex h-11 items-center gap-2 rounded-xl bg-ink px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-ink/90 active:scale-[0.98]">
-          <Plus className="size-4" aria-hidden /> เพิ่มรายการผ่อน
+          <Plus className="size-4" aria-hidden /> เพิ่มรายการ
         </button>
       </div>
 
@@ -38,14 +35,24 @@ export default function InstallmentsView({ installments, cards, onAdd, onEdit })
             const card = cardById[plan.cardId]
             return (
               <li key={plan.id}>
-                <button type="button" onClick={() => onEdit(plan)} aria-label={`แก้ไข ${plan.name}`} className={`flex w-full items-center gap-3 px-4 py-3.5 text-left transition hover:bg-canvas lg:px-5 ${done ? 'opacity-60' : ''}`}>
+                <button type="button" onClick={() => onEdit(plan)} aria-label={`แก้ไข ${plan.name}`} className={`flex w-full items-start gap-3 px-4 py-3.5 text-left transition hover:bg-canvas lg:px-5 ${done ? 'opacity-60' : ''}`}>
                   <CategoryIcon id={plan.category} />
                   <div className="min-w-0 flex-1">
-                    <p className="truncate font-medium">{plan.name}</p>
-                    <p className="truncate text-sm text-muted">
-                      {done ? `ผ่อนครบแล้ว · ${formatDateWithYear(endDate)}` : `งวดที่ ${next.no} · ${formatShortDate(next.date)} · ${relativeDays(next.date)}`}
-                    </p>
-                    <div className="mt-2 flex items-center gap-2">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="font-medium leading-snug wrap-anywhere">{plan.name}</p>
+                        <p className="text-sm text-muted">
+                          {done ? `ผ่อนครบ ${formatDateWithYear(endDate)}` : (
+                            <><span className="whitespace-nowrap">งวดที่ {next.no} · {formatShortDate(next.date)}</span> · <span className="whitespace-nowrap">{relativeDays(next.date)}</span></>
+                          )}
+                        </p>
+                      </div>
+                      <div className="shrink-0 text-right">
+                        <p className="num font-semibold">฿{formatMoney(next?.amount ?? installmentAmount(plan, 0))}</p>
+                        <p className="text-xs text-muted">/งวด</p>
+                      </div>
+                    </div>
+                    <div className="mt-2.5 flex items-center gap-2">
                       <div
                         role="progressbar"
                         aria-label={`จ่ายแล้ว ${paid} จาก ${plan.count} งวด`}
@@ -56,21 +63,21 @@ export default function InstallmentsView({ installments, cards, onAdd, onEdit })
                       >
                         <div className="h-full rounded-full bg-income-strong transition-[width]" style={{ width: `${(paid / plan.count) * 100}%` }} />
                       </div>
-                      <span className="num shrink-0 text-xs font-medium text-muted">
-                        {done ? <CircleCheck className="inline size-3.5 text-income-strong" aria-hidden /> : null} {paid}/{plan.count} งวด
+                      <span className="num flex shrink-0 items-center gap-1 text-xs font-medium text-ink">
+                        {done && <CircleCheck className="size-3.5 text-income-strong" aria-hidden />}
+                        {paid}/{plan.count} งวด
                       </span>
                     </div>
-                    <p className="mt-1 flex items-center gap-1 truncate text-xs text-muted">
-                      {card ? (
-                        <><CreditCard className="size-3.5" aria-hidden /> {card.name}{card.last4 && ` ••${card.last4}`}</>
-                      ) : 'เงินสด / โอน'}
-                    </p>
+                    <div className="mt-1.5 flex items-center justify-between gap-3 text-xs text-muted">
+                      <span className="flex min-w-0 items-center gap-1">
+                        {card ? (
+                          <><CreditCard className="size-3.5 shrink-0" aria-hidden /><span className="truncate">{card.name}{card.last4 && ` ••${card.last4}`}</span></>
+                        ) : 'เงินสด / โอน'}
+                      </span>
+                      <span className="num shrink-0">{done ? `รวม ฿${formatMoney(plan.total)}` : `เหลือ ฿${formatMoney(remaining)}`}</span>
+                    </div>
                   </div>
-                  <div className="shrink-0 text-right">
-                    <p className="num font-semibold">฿{formatMoney(next?.amount ?? installmentAmount(plan, 0))}</p>
-                    <p className="text-xs text-muted">{done ? `รวม ฿${formatMoney(plan.total)}` : `เหลือ ฿${formatMoney(remaining)}`}</p>
-                  </div>
-                  <ChevronRight className="hidden size-4 shrink-0 text-muted sm:block" aria-hidden />
+                  <ChevronRight className="mt-3 hidden size-4 shrink-0 text-muted sm:block" aria-hidden />
                 </button>
               </li>
             )
@@ -87,7 +94,7 @@ function Stat({ label, value, strong }) {
   return (
     <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-line">
       <p className="text-xs font-medium text-muted">{label}</p>
-      <p className={`num mt-1 font-bold ${strong ? 'text-xl text-expense-strong' : 'text-lg'}`}>{value}</p>
+      <p className={`num mt-1 font-bold ${strong ? 'text-xl' : 'text-lg text-muted'}`}>{value}</p>
     </div>
   )
 }

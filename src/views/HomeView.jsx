@@ -4,7 +4,7 @@ import TransactionList from '../components/TransactionList'
 import { CategoryDonut, TrendChart } from '../components/Charts'
 import UpcomingPayments from '../components/UpcomingPayments'
 
-export default function HomeView({ items, cards, upcoming, onOpen, totals, period, onPeriod, categories, categoryFilter, onCategory, onDelete, onAdd, trend }) {
+export default function HomeView({ items, cards, upcoming, onOpen, totals, period, onPeriod, categories, categoryFilter, onCategory, onDelete, trend }) {
   return (
     <div className="space-y-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -14,7 +14,7 @@ export default function HomeView({ items, cards, upcoming, onOpen, totals, perio
 
       <SummaryCards totals={totals} period={period} />
 
-      <div className="grid gap-5 lg:grid-cols-5">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-5">
         {/* Analytics are desktop-only on Home; mobile has them under "สรุป". */}
         <div className="hidden space-y-5 lg:col-span-3 lg:block">
           <TrendChart data={trend} />
@@ -29,7 +29,6 @@ export default function HomeView({ items, cards, upcoming, onOpen, totals, perio
             categoryFilter={categoryFilter}
             onClearCategory={() => onCategory(null)}
             onDelete={onDelete}
-            onAdd={onAdd}
           />
         </div>
       </div>

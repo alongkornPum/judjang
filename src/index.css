@@ -51,6 +51,16 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Grows a compact control's hit area to 44px without changing how it looks. */
+.hit-44 {
+  position: relative;
+}
+.hit-44::after {
+  content: '';
+  position: absolute;
+  inset: -4px 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

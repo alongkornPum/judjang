@@ -59,12 +59,11 @@ export default function Header({ view, onNavigate, onAdd }) {
           <button
             type="button"
             onClick={() => onNavigate('settings')}
-            className="grid size-11 place-items-center rounded-full"
-            aria-label="โปรไฟล์และการตั้งค่า"
+            aria-label="ตั้งค่า"
+            aria-current={view === 'settings' ? 'page' : undefined}
+            className={`-mr-2 grid size-11 place-items-center rounded-full transition-colors lg:hidden ${view === 'settings' ? 'text-ink' : 'text-muted hover:text-ink'}`}
           >
-            <span className="grid size-9 place-items-center rounded-full bg-gradient-to-br from-income to-sky-500 text-sm font-semibold text-white">
-              J
-            </span>
+            <Settings className="size-5.5" strokeWidth={view === 'settings' ? 2.4 : 1.8} aria-hidden />
           </button>
         </div>
       </div>

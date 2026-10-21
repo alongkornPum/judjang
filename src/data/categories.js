@@ -11,8 +11,8 @@ export const CATEGORIES = {
     { id: 'shopping', label: 'ช้อปปิ้ง', icon: ShoppingBag, color: '#EC4899' },
     { id: 'bills', label: 'ค่าบิล', icon: Receipt, color: '#8B5CF6' },
     { id: 'health', label: 'สุขภาพ', icon: HeartPulse, color: '#06B6D4' },
-    { id: 'fun', label: 'บันเทิง', icon: Gamepad2, color: '#F97316' },
-    { id: 'subscription', label: 'บริการรายเดือน', icon: Repeat, color: '#6366F1' },
+    { id: 'fun', label: 'บันเทิง', icon: Gamepad2, color: '#65A30D' },
+    { id: 'subscription', label: 'บริการรายเดือน', icon: Repeat, color: '#0F766E' },
     { id: 'other-expense', label: 'อื่นๆ', icon: Ellipsis, color: '#94A3B8' },
   ],
   income: [

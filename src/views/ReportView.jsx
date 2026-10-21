@@ -12,7 +12,7 @@ export default function ReportView({ items, totals, period, onPeriod, trend }) {
       </div>
       <SummaryCards totals={totals} period={period} />
       <TrendChart data={trend} />
-      <div className="grid gap-5 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <CategoryDonut data={byCategory(items, 'expense')} />
         <CategoryDonut data={byCategory(items, 'income')} title="สัดส่วนรายรับตามแหล่งที่มา" centerLabel="รายรับรวม" />
       </div>

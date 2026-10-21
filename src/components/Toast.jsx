@@ -21,7 +21,7 @@ export default function Toast({ toast, onDismiss }) {
                 toast.action()
                 onDismiss()
               }}
-              className="h-9 rounded-lg px-3 font-semibold text-income hover:bg-white/10"
+              className="hit-44 h-9 rounded-lg px-3 font-semibold text-income hover:bg-white/10"
             >
               เลิกทำ
             </button>

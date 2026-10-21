@@ -22,7 +22,7 @@ export default function CardsView({ cards, transactions, subscriptions, onAdd, o
         <section aria-label="สรุปบัตรเครดิต" className="grid grid-cols-2 gap-3">
           <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-line">
             <p className="text-xs font-medium text-muted">ยอดค้างชำระรวม</p>
-            <p className="num mt-1 text-xl font-bold text-expense-strong">฿{formatMoney(totalOutstanding)}</p>
+            <p className="num mt-1 text-xl font-bold">฿{formatMoney(totalOutstanding)}</p>
           </div>
           <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-line">
             <p className="text-xs font-medium text-muted">ครบกำหนดถัดไป</p>
@@ -40,7 +40,7 @@ export default function CardsView({ cards, transactions, subscriptions, onAdd, o
       {cards.length === 0 ? (
         <Empty onAdd={onAdd} />
       ) : (
-        <div className="grid gap-5 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
           {statuses.map(({ card, s }) => (
             <CardPanel
               key={card.id}
@@ -70,7 +70,7 @@ function CardPanel({ card, s, subs, onEdit, onSetPaid }) {
       <div className="relative flex aspect-[2.4] flex-col justify-between p-4 text-white md:aspect-auto md:h-36" style={{ background: `linear-gradient(135deg, ${card.color}, ${card.color}CC)` }}>
         <div className="flex items-start justify-between">
           <span className="font-semibold">{card.name}</span>
-          <button type="button" onClick={onEdit} className="-mr-2 -mt-2 grid size-10 place-items-center rounded-full text-white/80 hover:bg-white/10 hover:text-white" aria-label={`แก้ไข ${card.name}`}>
+          <button type="button" onClick={onEdit} className="-mr-2 -mt-2 grid size-11 place-items-center rounded-full text-white/80 hover:bg-white/10 hover:text-white" aria-label={`แก้ไข ${card.name}`}>
             <Pencil className="size-4" aria-hidden />
           </button>
         </div>
@@ -105,11 +105,11 @@ function CardPanel({ card, s, subs, onEdit, onSetPaid }) {
               </span>
             </span>
             {s.statementPaid ? (
-              <button type="button" onClick={() => onSetPaid(false)} className="flex h-9 shrink-0 items-center gap-1 rounded-lg px-2 font-medium hover:bg-white/60">
+              <button type="button" onClick={() => onSetPaid(false)} className="hit-44 flex h-9 shrink-0 items-center gap-1 rounded-lg px-2 font-medium hover:bg-white/60">
                 <Undo2 className="size-3.5" aria-hidden /> ยกเลิก
               </button>
             ) : (
-              <button type="button" onClick={() => onSetPaid(true)} className="flex h-9 shrink-0 items-center gap-1 rounded-lg bg-white px-2.5 font-semibold shadow-sm hover:bg-white/80">
+              <button type="button" onClick={() => onSetPaid(true)} className="hit-44 flex h-9 shrink-0 items-center gap-1 rounded-lg bg-white px-2.5 font-semibold shadow-sm hover:bg-white/80">
                 <Check className="size-3.5" aria-hidden /> ชำระแล้ว
               </button>
             )}

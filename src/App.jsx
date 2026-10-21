@@ -206,13 +206,13 @@ export default function App() {
               categoryFilter={categoryFilter}
               onCategory={setCategoryFilter}
               onDelete={handleDelete}
-              onAdd={openAdd}
               trend={trend}
             />
           )}
           {view === 'report' && <ReportView items={periodItems} totals={totals} period={period} onPeriod={setPeriod} trend={trend} />}
           {view === 'subscriptions' && (
-            <div className="mx-auto max-w-3xl space-y-5">
+            <div className="mx-auto max-w-3xl space-y-4">
+              <h1 className="text-2xl font-bold tracking-tight">รายเดือน & ผ่อน</h1>
               <Segmented
                 label="ประเภทรายจ่ายประจำ"
                 value={recurringTab}

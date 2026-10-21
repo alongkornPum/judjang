@@ -25,11 +25,13 @@ export default function SettingsView({ count, subCount, cardCount, instCount, on
 
       <section className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-line">
         <div className="flex items-center gap-3">
-          <span className="grid size-12 place-items-center rounded-full bg-gradient-to-br from-income to-sky-500 text-lg font-semibold text-white">J</span>
-          <div>
-            <p className="font-semibold">บัญชีของฉัน</p>
-            <p className="flex items-center gap-1.5 text-sm text-muted">
-              <Database className="size-3.5" aria-hidden /> เก็บในเบราว์เซอร์นี้ · <span className="num">{count.toLocaleString('th-TH')}</span> รายการ · บริการ <span className="num">{subCount}</span> · บัตร <span className="num">{cardCount}</span> · ผ่อน <span className="num">{instCount}</span>
+          <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-canvas text-ink">
+            <Database className="size-5" aria-hidden />
+          </span>
+          <div className="min-w-0">
+            <p className="font-semibold">ข้อมูลในเครื่องนี้</p>
+            <p className="text-sm text-muted">
+              <span className="whitespace-nowrap"><span className="num">{count.toLocaleString('th-TH')}</span> รายการ</span> · <span className="whitespace-nowrap">บริการ <span className="num">{subCount}</span></span> · <span className="whitespace-nowrap">บัตร <span className="num">{cardCount}</span></span> · <span className="whitespace-nowrap">ผ่อน <span className="num">{instCount}</span></span>
             </p>
           </div>
         </div>

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { ChevronDown, CreditCard, Plus, Repeat, Search, SquareStack, Trash2, X, Inbox } from 'lucide-react'
+import { ChevronDown, CreditCard, Repeat, Search, SquareStack, Trash2, X, Inbox } from 'lucide-react'
 import { getCategory } from '../data/categories'
 import { formatDayHeading, formatMoney, formatSigned } from '../lib/format'
 import CategoryIcon from './CategoryIcon'
@@ -12,7 +12,7 @@ const TYPE_FILTERS = [
 
 const PAGE = 20
 
-export default function TransactionList({ items, cards = [], categoryFilter, onClearCategory, onDelete, onAdd }) {
+export default function TransactionList({ items, cards = [], categoryFilter, onClearCategory, onDelete }) {
   const cardById = useMemo(() => Object.fromEntries(cards.map((c) => [c.id, c])), [cards])
   const [query, setQuery] = useState('')
   const [type, setType] = useState('all')
@@ -40,17 +40,10 @@ export default function TransactionList({ items, cards = [], categoryFilter, onC
 
   return (
     <section aria-labelledby="tx-heading" className="rounded-2xl bg-white shadow-sm ring-1 ring-line">
-      <div className="flex items-center justify-between gap-3 px-4 pt-4 lg:px-5">
+      <div className="px-4 pt-4 lg:px-5">
         <h2 id="tx-heading" className="whitespace-nowrap font-semibold">
           รายการล่าสุด <span className="num text-sm font-normal text-muted">({filtered.length})</span>
         </h2>
-        <button
-          type="button"
-          onClick={onAdd}
-          className="hidden h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg bg-income-soft px-3 text-sm font-semibold text-income-strong transition hover:bg-income/15 lg:flex"
-        >
-          <Plus className="size-4" aria-hidden /> เพิ่มรายการใหม่
-        </button>
       </div>
 
       <div className="space-y-3 px-4 pt-3 lg:px-5">
@@ -62,7 +55,7 @@ export default function TransactionList({ items, cards = [], categoryFilter, onC
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="ค้นหา หมวดหมู่ / บันทึก / จำนวนเงิน"
-            className="h-11 w-full rounded-xl border border-line bg-canvas pl-9 pr-3 text-sm placeholder:text-muted/80 focus:border-ink/40 focus:bg-white focus:outline-none"
+            className="h-11 w-full rounded-xl border border-line bg-canvas pl-9 pr-3 text-base placeholder:text-muted/80 focus:border-ink/40 focus:bg-white focus:outline-none sm:text-sm"
           />
         </label>
         <div className="flex flex-wrap items-center gap-2">
@@ -72,7 +65,7 @@ export default function TransactionList({ items, cards = [], categoryFilter, onC
               type="button"
               aria-pressed={type === f.id}
               onClick={() => setType(f.id)}
-              className={`h-9 rounded-full px-3.5 text-sm font-medium transition ${
+              className={`hit-44 h-9 rounded-full px-3.5 text-sm font-medium transition ${
                 type === f.id ? 'bg-ink text-white' : 'bg-canvas text-muted ring-1 ring-line hover:text-ink'
               }`}
             >
@@ -83,7 +76,7 @@ export default function TransactionList({ items, cards = [], categoryFilter, onC
             <button
               type="button"
               onClick={onClearCategory}
-              className="flex h-9 items-center gap-1 rounded-full bg-sky-50 pl-3.5 pr-2.5 text-sm font-medium text-sky-800 ring-1 ring-sky-200"
+              className="hit-44 flex h-9 items-center gap-1 rounded-full bg-sky-50 pl-3.5 pr-2.5 text-sm font-medium text-sky-800 ring-1 ring-sky-200"
             >
               {getCategory(categoryFilter).label}
               <X className="size-4" aria-label="ล้างตัวกรองหมวดหมู่" />
@@ -147,10 +140,10 @@ function TransactionRow({ tx, card, onDelete }) {
       >
         <CategoryIcon id={tx.category} />
         <span className="min-w-0 flex-1">
-          <span className="block truncate font-medium">{c.label}</span>
-          {tx.note && <span className="block truncate text-sm text-muted">{tx.note}</span>}
-          {(card || tx.subscriptionId || tx.installmentNo) && (
-            <span className="mt-0.5 flex items-center gap-2 text-xs text-muted">
+          <span className="block truncate font-medium">{tx.note || c.label}</span>
+          {(tx.note || card || tx.subscriptionId || tx.installmentNo) && (
+            <span className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted">
+              {tx.note && <span>{c.label}</span>}
               {tx.subscriptionId && (
                 <span className="flex items-center gap-1"><Repeat className="size-3" aria-hidden /> อัตโนมัติ</span>
               )}

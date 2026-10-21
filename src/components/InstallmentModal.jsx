@@ -64,14 +64,14 @@ export default function InstallmentModal({ initial, cards, onClose, onSubmit, on
 
         <fieldset disabled={locked} className="disabled:opacity-60">
           <legend className="text-sm font-medium text-muted">จำนวนงวด (เดือน)</legend>
-          <div className="mt-2 flex flex-wrap items-center gap-2">
+          <div className="mt-2 grid grid-cols-6 gap-2">
             {COUNT_PRESETS.map((c) => (
               <button
                 key={c}
                 type="button"
                 aria-pressed={n === c}
                 onClick={() => { setCount(String(c)); setError('') }}
-                className={`num h-10 min-w-12 rounded-full px-3.5 text-sm font-medium ring-1 transition ${n === c ? 'bg-ink/[0.04] text-ink ring-2 ring-ink' : 'text-muted ring-line hover:bg-canvas'}`}
+                className={`num h-11 rounded-xl text-sm font-medium ring-1 transition ${n === c ? 'bg-ink/[0.04] text-ink ring-2 ring-ink' : 'text-muted ring-line hover:bg-canvas'}`}
               >
                 {c}
               </button>
@@ -79,9 +79,10 @@ export default function InstallmentModal({ initial, cards, onClose, onSubmit, on
             <input
               inputMode="numeric"
               aria-label="จำนวนงวดอื่นๆ"
-              value={count}
+              placeholder="อื่นๆ"
+              value={COUNT_PRESETS.includes(n) ? '' : count}
               onChange={(e) => { setCount(e.target.value.replace(/\D/g, '').slice(0, 3)); setError('') }}
-              className="num h-10 w-20 rounded-xl border border-line bg-canvas px-3 text-center text-sm focus:border-ink/40 focus:bg-white focus:outline-none"
+              className={`num h-11 w-full min-w-0 rounded-xl border bg-canvas px-1 text-center text-base placeholder:text-sm placeholder:text-muted/70 focus:border-ink/40 focus:bg-white focus:outline-none sm:text-sm ${count && !COUNT_PRESETS.includes(n) ? 'border-ink ring-1 ring-ink' : 'border-line'}`}
             />
           </div>
         </fieldset>
