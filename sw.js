@@ -1,5 +1,5 @@
 // Offline support. Bump CACHE when shipping a breaking change to cached files.
-const CACHE = 'judjang-v1'
+const CACHE = 'judjang-v2'
 const PRECACHE = ['./', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon.svg']
 
 self.addEventListener('install', (event) => {
