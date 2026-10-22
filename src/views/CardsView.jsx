@@ -3,9 +3,10 @@ import { formatMoney } from '../lib/format'
 import { formatShortDate, relativeDays } from '../lib/dates'
 import { cardStatus } from '../lib/cards'
 import { monthlyCost } from '../lib/subscriptions'
+import { installmentProgress } from '../lib/installments'
 
-export default function CardsView({ cards, transactions, subscriptions, onAdd, onEdit, onSetPaid }) {
-  const statuses = cards.map((c) => ({ card: c, s: cardStatus(c, transactions) }))
+export default function CardsView({ cards, transactions, subscriptions, installments, onAdd, onEdit, onSetPaid }) {
+  const statuses = cards.map((c) => ({ card: c, s: cardStatus(c, transactions, installments) }))
   const totalOutstanding = statuses.reduce((sum, x) => sum + x.s.outstanding, 0)
   const nextDue = statuses.filter((x) => x.s.upcoming.amount > 0).sort((a, b) => a.s.upcoming.dueDate.localeCompare(b.s.upcoming.dueDate))[0]
 
@@ -47,6 +48,7 @@ export default function CardsView({ cards, transactions, subscriptions, onAdd, o
               card={card}
               s={s}
               subs={subscriptions.filter((x) => x.active && x.cardId === card.id)}
+              plans={installments.filter((p) => p.cardId === card.id && !installmentProgress(p).done)}
               onEdit={() => onEdit(card)}
               onSetPaid={(paid) => onSetPaid(card.id, s.statement.closeDate, paid)}
             />
@@ -61,7 +63,7 @@ export default function CardsView({ cards, transactions, subscriptions, onAdd, o
   )
 }
 
-function CardPanel({ card, s, subs, onEdit, onSetPaid }) {
+function CardPanel({ card, s, subs, plans, onEdit, onSetPaid }) {
   const { upcoming } = s
   const statusTone = upcoming.overdue ? 'bg-expense-soft text-expense-strong' : s.statementPaid && s.statement.amount > 0 ? 'bg-income-soft text-income-strong' : 'bg-amber-50 text-amber-800'
 
@@ -123,9 +125,11 @@ function CardPanel({ card, s, subs, onEdit, onSetPaid }) {
             <dd className="text-xs text-muted">ตัดรอบ {formatShortDate(s.nextCloseDate)}</dd>
           </div>
           <div>
-            <dt className="text-xs text-muted">บริการที่ผูกบัตร</dt>
-            <dd className="num font-semibold">{subs.length} รายการ</dd>
-            <dd className="num text-xs text-muted">฿{formatMoney(subs.reduce((a, x) => a + monthlyCost(x), 0))}/เดือน</dd>
+            <dt className="text-xs text-muted">รายจ่ายประจำในบัตร</dt>
+            <dd className="font-semibold">บริการ <span className="num">{subs.length}</span> · ผ่อน <span className="num">{plans.length}</span></dd>
+            <dd className="num text-xs text-muted">
+              ฿{formatMoney(subs.reduce((a, x) => a + monthlyCost(x), 0) + plans.reduce((a, p) => a + installmentProgress(p).next.amount, 0))}/เดือน
+            </dd>
           </div>
         </dl>
 
@@ -138,6 +142,9 @@ function CardPanel({ card, s, subs, onEdit, onSetPaid }) {
             <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-line" role="progressbar" aria-valuenow={Math.round(s.utilization * 100)} aria-valuemin={0} aria-valuemax={100} aria-label="สัดส่วนการใช้วงเงิน">
               <div className={`h-full rounded-full ${s.utilization > 0.8 ? 'bg-expense' : s.utilization > 0.5 ? 'bg-amber-500' : 'bg-income'}`} style={{ width: `${s.utilization * 100}%` }} />
             </div>
+            {s.installmentBalance > 0 && (
+              <p className="mt-1.5 text-xs text-muted">รวมยอดผ่อนที่ยังไม่เรียกเก็บ <span className="num font-semibold text-ink">฿{formatMoney(s.installmentBalance)}</span></p>
+            )}
           </div>
         )}
       </div>

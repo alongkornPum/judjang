@@ -93,7 +93,7 @@ export default function App() {
   const upcoming = useMemo(() => upcomingPayments(subscriptions, cards, transactions, installments), [subscriptions, cards, transactions, installments, today]) // eslint-disable-line react-hooks/exhaustive-deps
   const subsPerMonth = useMemo(() => subscriptions.filter((s) => s.active).reduce((a, s) => a + monthlyCost(s), 0), [subscriptions])
   const instPerMonth = useMemo(() => installments.reduce((a, p) => a + (installmentProgress(p).next?.amount ?? 0), 0), [installments])
-  const cardOutstanding = useMemo(() => cards.reduce((a, c) => a + cardStatus(c, transactions).outstanding, 0), [cards, transactions])
+  const cardOutstanding = useMemo(() => cards.reduce((a, c) => a + cardStatus(c, transactions, installments).outstanding, 0), [cards, transactions, installments])
 
   const notify = (message, action) => setToast({ id: Date.now(), message, action })
   const dismissToast = useCallback(() => setToast(null), [])
@@ -242,6 +242,7 @@ export default function App() {
               cards={cards}
               transactions={transactions}
               subscriptions={subscriptions}
+              installments={installments}
               onAdd={() => setModal({ kind: 'card' })}
               onEdit={(c) => setModal({ kind: 'card', data: c })}
               onSetPaid={(cardId, closeDate, paid) => {

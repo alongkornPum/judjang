@@ -24,7 +24,7 @@ export function upcomingPayments(subscriptions, cards, transactions, installment
     }
   }
   for (const c of cards) {
-    const { upcoming } = cardStatus(c, transactions)
+    const { upcoming } = cardStatus(c, transactions, installments)
     if (upcoming.amount > 0 && (upcoming.overdue || daysUntil(upcoming.dueDate) <= WINDOW_DAYS)) {
       out.push({ key: c.id, kind: 'card', date: upcoming.dueDate, title: `ชำระบัตร ${c.name}`, amount: upcoming.amount, color: c.color, overdue: upcoming.overdue, meta: upcoming.estimated ? 'ยอดประมาณการ' : 'ยอดตามใบแจ้งหนี้' })
     }

@@ -1,5 +1,6 @@
 import { toISODate } from './format'
 import { clampDate, startOfToday } from './dates'
+import { schedule } from './installments'
 
 /*
  * Billing model: purchases after one closing date up to and including the
@@ -44,11 +45,21 @@ function spent(transactions, cardId, fromExclusive, toInclusive) {
   return sum
 }
 
-export function cardStatus(card, transactions, today = startOfToday()) {
+// Installments on this card that haven't been recorded as expenses yet.
+const unbilledInstallments = (installments, cardId) =>
+  installments.filter((p) => p.cardId === cardId).flatMap((p) => schedule(p).filter((i) => !p.lastChargedDate || i.date > p.lastChargedDate))
+
+export function cardStatus(card, transactions, installments = [], today = startOfToday()) {
   const { nextClose, lastClose, prevClose } = cardCycle(card, today)
   const todayIso = toISODate(today)
 
-  const current = spent(transactions, card.id, lastClose, nextClose)
+  // Installments due later in this cycle already belong to it, and like a bank
+  // the whole remaining balance holds credit limit from day one.
+  const unbilled = unbilledInstallments(installments, card.id)
+  const inCycle = unbilled.filter((i) => i.date > toISODate(lastClose) && i.date <= toISODate(nextClose)).reduce((a, i) => a + i.amount, 0)
+  const installmentBalance = unbilled.reduce((a, i) => a + i.amount, 0)
+
+  const current = spent(transactions, card.id, lastClose, nextClose) + inCycle
   const statement = {
     closeDate: toISODate(lastClose),
     dueDate: toISODate(dueAfter(card, lastClose)),
@@ -62,6 +73,7 @@ export function cardStatus(card, transactions, today = startOfToday()) {
     : { ...statement, estimated: false, overdue: statement.dueDate < todayIso }
 
   const outstanding = current + (statementPaid ? 0 : statement.amount)
+  const limitUsed = outstanding + installmentBalance - inCycle
   return {
     current,
     nextCloseDate: toISODate(nextClose),
@@ -69,7 +81,8 @@ export function cardStatus(card, transactions, today = startOfToday()) {
     statementPaid,
     upcoming,
     outstanding,
-    available: card.limit ? card.limit - outstanding : null,
-    utilization: card.limit ? Math.min(1, outstanding / card.limit) : null,
+    installmentBalance,
+    available: card.limit ? card.limit - limitUsed : null,
+    utilization: card.limit ? Math.min(1, limitUsed / card.limit) : null,
   }
 }
